@@ -1,4 +1,4 @@
-BASE_DATA_DIR = 'data'
+BASE_DATA_DIR = 'denormalized_data'
 BASE_NORMALIZED_DATA_DIR = 'normalized_data'
 
 NOTIFICATION_ONLY_COLUMN_ORDER = [
