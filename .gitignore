@@ -1,0 +1,4 @@
+env
+data/*
+normalized_data/*
+__pycache__*
