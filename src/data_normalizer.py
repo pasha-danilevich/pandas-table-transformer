@@ -116,8 +116,8 @@ class NotificationOnlyNormalizer(BaseDataNormalizer):
                         result = pd.concat([result, new_record], ignore_index=True)
                         count += 1
 
-            if count == 100:
-                break
+            # if count == 100:
+            #     break
 
         print("Done.")
         return result
