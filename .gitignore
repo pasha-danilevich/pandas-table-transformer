@@ -1,4 +1,5 @@
 env
-denormalized_data/*
-normalized_data/*
+# denormalized_data/*
+# normalized_data/*
+*.xlsx
 __pycache__*
