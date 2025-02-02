@@ -45,6 +45,85 @@ def normalize_list(input_files: list[FileConfig], output_path: str):
     print(f"Данные успешно сохранены в файл: {output_path}")
 
 
+def marge_notification_license():
+    # Загрузка данных
+    df_license = pd.read_excel('normalized_data/'+'normalized_license.xlsx')
+    df_license = df_license.rename(columns={'Работы/услуги': 'Работы и услуги'})
+    df_notifications = pd.read_excel('normalized_data/'+'normalized_notifications.xlsx')
+
+    df_notifications = df_notifications.drop(columns=['Номер'])
+
+    # Объединение данных по ИНН
+    merged_df = pd.merge(
+        df_notifications,
+        df_license,
+        on='ИНН',
+        how='outer',  # Используем outer join, чтобы сохранить все строки
+        suffixes=('_notif', '_lic')  # Добавляем суффиксы для одинаковых столбцов
+    )
+
+    # Переименование столбцов для соответствия Уведомление_Лицензии_small.xlsx
+    merged_df = merged_df.rename(columns={
+        'Дата поступления': 'Дата поступления',
+        'Вид деятельности': 'Вид деятельности',
+        'Уведомитель': 'Уведомитель',
+        'Адрес объекта осуществления': 'Адрес объекта осуществления',
+        'ФИАС': 'ФИАС',
+        'Работы и услуги': 'Работы и услуги',
+        '__': '___x',
+        'Деятельность': 'Деятельность',
+        'Наименование организации': 'Наименование организации',
+        'Полное наименование организации': 'Полное наименование организации',
+        'ОГРН': 'ОГРН',
+        'Регион организации': 'Регион организации',
+        'Юридический адрес': 'Юридический адрес',
+        'Регион объекта': 'Регион объекта',
+        'Адрес объекта': 'Адрес объекта',
+        'Тип населенного пункта': 'Тип населенного пункта',
+        'Тип объекта': 'Тип объекта',
+        '№': '№',
+        'Дата': 'Дата',
+        'Статус': 'Статус',
+        'Работы/услуги': 'Работы/услуги',
+        '__': '___y'
+    })
+
+    # # Объединение столбцов 
+    # merged_df['Работы и услуги'] = merged_df['Работы и услуги'].combine_first(merged_df['Работы/услуги'])
+    
+    merged_df['Деятельность'] = merged_df['Деятельность_notif'].combine_first(merged_df['Деятельность_lic'])
+
+    # Удаление лишнего столбца 
+    merged_df = merged_df.drop(columns=['Деятельность_lic', 'Деятельность_notif'])
+
+    # Упорядочивание столбцов в соответствии с Уведомление_Лицензии_small.xlsx
+    columns_order = [
+        'Регистрационный номер', 'Дата поступления', 'Вид деятельности', 
+        'Уведомитель', 'ИНН', 'Адрес объекта осуществления', 
+        'ФИАС', 'Работы и услуги',  # Обновленный столбец
+        '___x', 'Деятельность', 
+        'Наименование организации', 
+        'Полное наименование организации', 
+        'ОГРН', 
+        'Регион организации', 
+        'Юридический адрес', 
+        'Регион объекта', 
+        'Адрес объекта', 
+        'Тип населенного пункта', 
+        'Тип объекта', 
+        '№', 
+        'Дата', 
+        'Статус'
+    ]
+
+    # Приведение столбцов к нужному порядку
+    merged_df = merged_df[columns_order] if all(col in merged_df.columns for col in columns_order) else merged_df
+
+    # Сохранение результата
+    merged_df.to_excel('normalized_data/'+'notification_license.xlsx', index=False)
+
+    print("Файл 'notification_license.xlsx' успешно создан.")
+
 
 
 if __name__ == '__main__':
@@ -72,19 +151,8 @@ if __name__ == '__main__':
         normalize_list(input_files, output_path)
     
 
-
-    # df_notification = pd.read_excel(
-    #     io=f'{BASE_NORMALIZED_DATA_DIR}/normalized_notifications.xlsx',
-    #     skiprows=0
-    # )
-    # df_license = pd.read_excel(
-    #     io=f'{BASE_NORMALIZED_DATA_DIR}/normalized_license.xlsx',
-    #     skiprows=0
-    # )
-
-    # # Объединение DataFrame по ИНН
-    # result = pd.merge(df_notification, df_license, on='ИНН', how='outer')
+    # marge_notification_license() ValueError: This sheet is too large!
     
-    # result.to_excel(f"{BASE_NORMALIZED_DATA_DIR}/notification_license.xlsx", index=False) ValueError: This sheet is too large! Your sheet size is: 8848380, 27 Max sheet size is: 1048576, 16384
-    # print(f"Данные успешно сохранены")
-    
+
+
+
